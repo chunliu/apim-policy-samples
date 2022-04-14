@@ -1,0 +1,20 @@
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://funcappinst312.azurewebsites.net" output-token-variable-name="msi-access-token" ignore-error="false" />
+        <!--Your own Azure AD Application-->
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["msi-access-token"])</value>
+        </set-header>
+        <set-backend-service id="funcapp-policy" backend-id="funcappinst312" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

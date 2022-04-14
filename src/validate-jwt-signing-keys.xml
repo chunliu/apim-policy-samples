@@ -1,0 +1,27 @@
+<policies>
+    <inbound>
+        <base />
+        <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid.">
+            <issuer-signing-keys>
+                <key n="oaLLT9hkcSj2tGfZsjbu7Xz1Krs0qEicXPmEsJKOBQHauZ_kRM1HdEkgOJbUznUspE6xOuOSXjlzErqBxXAu4SCvcvVOCYG2v9G3-uIrLF5dstD0sYHBo1VomtKxzF90Vslrkn6rNQgUGIWgvuQTxm1uRklYFPEcTIRw0LnYknzJ06GC9ljKR617wABVrZNkBuDgQKj37qcyxoaxIGdxEcmVFZXJyrxDgdXh9owRmZn6LIJlGjZ9m59emfuwnBnsIQG7DirJwe9SXrLXnexRQWqyzCdkYaOqkpKrsjuxUj2-MHX31FqsdpJJsOAvYXGOYBKJRjhGrGdONVrZdUdTBQ" e="AQAB" />
+            </issuer-signing-keys>
+            <audiences>
+                <audience>api://4e991117-eb28-41ad-bda4-0c5181cf2a46</audience>
+            </audiences>
+            <required-claims>
+                <claim name="roles" match="all">
+                    <value>ReadAccess</value>
+                </claim>
+            </required-claims>
+        </validate-jwt>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

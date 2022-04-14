@@ -1,0 +1,61 @@
+<policies>
+    <inbound>
+        <base />
+        <send-request mode="new" response-variable-name="configurations" timeout="20" ignore-error="true">
+            <set-url>https://sqlvatmk5s4efbloa6.z23.web.core.windows.net/configurations.json</set-url>
+            <set-method>GET</set-method>
+        </send-request>
+        <set-variable name="configJson" value="@(((IResponse)context.Variables["configurations"]).Body.As<JObject>())" />
+        <choose>
+            <when condition="@(!(((JObject)context.Variables["configJson"])["ipWhitelist"].Any(ip => ip.ToString().Equals(context.Request.IpAddress))))">
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-body>The IP address is blocked.</set-body>
+                </return-response>
+            </when>
+        </choose>
+        <choose>
+            <when condition="@(context.Request.Certificate != null)">
+                <choose>
+                    <when condition="@(((JObject)context.Variables["configJson"])["serialNumbers"].Any(sn => sn.ToString().Equals(context.Request.Certificate.SerialNumber)))">
+                        <return-response>
+                            <set-status code="200" reason="OK" />
+                            <set-body>@{
+                                return new JObject(
+                                    new JProperty("Subject", context.Request.Certificate.Subject),
+                                    new JProperty("Issuer", context.Request.Certificate.Issuer),
+                                    new JProperty("Version", context.Request.Certificate.Version),
+                                    new JProperty("Valid Date", context.Request.Certificate.NotBefore),
+                                    new JProperty("Expiry Date", context.Request.Certificate.NotAfter),
+                                    new JProperty("Thumbprint", context.Request.Certificate.Thumbprint),
+                                    new JProperty("Serial Number", context.Request.Certificate.SerialNumber)                         
+                                ).ToString();
+                            }</set-body>
+                        </return-response>
+                    </when>
+                    <otherwise>
+                        <return-response>
+                            <set-status code="401" reason="Unauthorized" />
+                            <set-body />
+                        </return-response>
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-body />
+                </return-response>
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
